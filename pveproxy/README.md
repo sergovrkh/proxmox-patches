@@ -7,19 +7,25 @@ Added the ability to assign a specific ip address for pveproxy instead of the st
 How to apply?
 
 git clone https://github.com/sergovrkh/proxmox-patches.git
+
 cd proxmox-patches/pveproxy
+
 patch -d/ -p0 < pveproxy.patch 
 
-Create file /etc/default/pveproxy (if does not exist). 
-Add to it 
-BIND_ADDR=<your IP>
+Configuring
+
+Create file /etc/default/pveproxy (if does not exist)
+
+Add BIND_ADDR=<your IP>
 
 Restart pveproxy
+
 pveproxy stop && pveproxy start
 
 Rollback
 
 cd proxmox-patches/pveproxy
+
 patch -R -d/ -p0 < pveproxy.patch
 
 Author
