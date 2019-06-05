@@ -1,0 +1,35 @@
+diff -ruN /usr/share/perl5/PVE/API2Tools.pm PVE/API2Tools.pm
+--- /usr/share/perl5/PVE/API2Tools.pm	2019-06-03 01:32:38.352230636 +1200
++++ PVE/API2Tools.pm	2019-06-05 23:31:15.275692312 +1200
+@@ -217,6 +217,7 @@
+ 
+     # Note: evaluate with bash 
+     my $shcmd = ". $conffile;\n";
++    $shcmd .= 'echo \"BIND_ADDR:\$BIND_ADDR\";';
+     $shcmd .= 'echo \"ALLOW_FROM:\$ALLOW_FROM\";';
+     $shcmd .= 'echo \"DENY_FROM:\$DENY_FROM\";';
+     $shcmd .= 'echo \"POLICY:\$POLICY\";';
+@@ -230,7 +231,9 @@
+     while ($data =~ s/^(.*)\n//) {
+ 	my ($key, $value) = split(/:/, $1, 2);
+ 	next if !$value;
+-	if ($key eq 'ALLOW_FROM' || $key eq 'DENY_FROM') {
++       if ($key eq 'BIND_ADDR') {
++           $res->{$key} = $value;
++	} elsif ($key eq 'ALLOW_FROM' || $key eq 'DENY_FROM') {
+ 	    my $ips = [];
+ 	    foreach my $ip (split(/,/, $value)) {
+ 		$ip = "0/0" if $ip eq 'all';
+diff -ruN /usr/share/perl5/PVE/Service/pveproxy.pm PVE/Service/pveproxy.pm
+--- /usr/share/perl5/PVE/Service/pveproxy.pm	2019-06-03 01:45:48.371489187 +1200
++++ PVE/Service/pveproxy.pm	2019-06-05 23:32:27.568525864 +1200
+@@ -69,7 +69,8 @@
+ 	die "unable to open lock file '${accept_lock_fn}' - $!\n";
+ 
+     my $family = PVE::Tools::get_host_address_family($self->{nodename});
+-    my $socket = $self->create_reusable_socket(8006, undef, $family);
++    my $addr = $proxyconf->{BIND_ADDR};
++    my $socket = $self->create_reusable_socket(8006, $addr, $family);
+ 
+     my $dirs = {};
+ 
