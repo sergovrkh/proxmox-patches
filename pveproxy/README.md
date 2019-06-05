@@ -16,7 +16,7 @@ Configuring
 
 Create file /etc/default/pveproxy (if does not exist)
 
-Add BIND_ADDR=<your IP>
+Add BIND_ADDR='your IP'
 
 Restart pveproxy
 
